@@ -1,21 +1,53 @@
-CREATE TABLE Cliente (
-    CPF VARCHAR(14) PRIMARY KEY,
-    Nome VARCHAR(100),
-    Data_Nascimento DATE
+CREATE TABLE Locação (
+  Cód_Locação INT PRIMARY KEY,
+  Diária DECIMAL(5,2),
+  Dias INT,
+  Total DECIMAL(8,2)
 );
 
-CREATE TABLE Locacao (
-    Codigo_Locacao INT PRIMARY KEY,
-    Veiculo VARCHAR(100),
-    Cor VARCHAR(50),
-    Placa VARCHAR(10),
-    Diaria DECIMAL(10, 2),
-    CPF_Cliente VARCHAR(14),
-    Dias INT,
-    Total DECIMAL(10, 2),
-    FOREIGN KEY (CPF_Cliente) REFERENCES Cliente(CPF)
+CREATE TABLE Veículo (
+  Cód_Veículo INT PRIMARY KEY,
+  Veículo VARCHAR(255),
+  Cor VARCHAR(255),
+  Placa VARCHAR(255)
 );
-CREATE VIEW Locacao_Veiculo_Cliente AS
-SELECT L.Codigo_Locacao, L.Veiculo, L.Cor, L.Placa, L.Diaria, C.Nome AS Nome_Cliente, C.CPF, C.Data_Nascimento, L.Dias, L.Total
-FROM Locacao L
-INNER JOIN Cliente C ON L.CPF_Cliente = C.CPF;
+
+CREATE TABLE Cliente (
+  Cód_Cliente INT PRIMARY KEY,
+  Cliente VARCHAR(255),
+  CPF VARCHAR(255),
+  Nascimento DATE
+);
+
+CREATE TABLE Locação_Veículo (
+  Cód_Locação INT,
+  Cód_Veículo INT,
+  PRIMARY KEY (Cód_Locação, Cód_Veículo),
+  FOREIGN KEY (Cód_Locação) REFERENCES Locação(Cód_Locação),
+  FOREIGN KEY (Cód_Veículo) REFERENCES Veículo(Cód_Veículo)
+);
+
+CREATE TABLE Locação_Cliente (
+  Cód_Locação INT,
+  Cód_Cliente INT,
+  PRIMARY KEY (Cód_Locação, Cód_Cliente),
+  FOREIGN KEY (Cód_Locação) REFERENCES Locação(Cód_Locação),
+  FOREIGN KEY (Cód_Cliente) REFERENCES Cliente(Cód_Cliente)
+);
+CREATE VIEW Locações_Veículos_Clientes AS
+SELECT 
+  L.Cód_Locação,
+  L.Diária,
+  L.Dias,
+  L.Total,
+  V.Veículo,
+  V.Cor,
+  V.Placa,
+  C.Cliente,
+  C.CPF,
+  C.Nascimento
+FROM Locação AS L
+JOIN Locação_Veículo AS LV ON L.Cód_Locação = LV.Cód_Locação
+JOIN Veículo AS V ON LV.Cód_Veículo = V.Cód_Veículo
+JOIN Locação_Cliente AS LC ON L.Cód_Locação = LC.Cód_Locação
+JOIN Cliente AS C ON LC.Cód_Cliente = C.Cód_Cliente;
